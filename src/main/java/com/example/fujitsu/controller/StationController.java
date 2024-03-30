@@ -1,6 +1,6 @@
 package com.example.fujitsu.controller;
 
-import com.example.fujitsu.model.Station;
+import com.example.fujitsu.dto.StationDto;
 import com.example.fujitsu.service.StationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ public class StationController {
     private final StationService stationService;
 
     @GetMapping
-    public List<Station> getStations() {
+    public List<StationDto> getStations() {
         return stationService.getStations();
     }
 }

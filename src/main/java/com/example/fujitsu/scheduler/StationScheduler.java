@@ -1,6 +1,6 @@
 package com.example.fujitsu.scheduler;
 
-import com.example.fujitsu.model.Station;
+import com.example.fujitsu.dto.StationDto;
 import com.example.fujitsu.service.StationService;
 import lombok.RequiredArgsConstructor;
 import okhttp3.OkHttpClient;
@@ -85,19 +85,19 @@ public class StationScheduler {
     private void processStation(Element element, LocalDateTime timestamp) {
         String name = element.getElementsByTagName("name").item(0).getTextContent();
         if (VALID_STATION_NAMES.contains(name)) {
-            Station station = createStation(element, timestamp, name);
-            stationService.addStation(station);
-            System.out.println(station);
+            StationDto stationDto = createStationDto(element, timestamp, name);
+            stationService.addStation(stationDto);
+            System.out.println(stationDto);
         }
     }
 
-    private Station createStation(Element element, LocalDateTime timestamp, String name) {
+    private StationDto createStationDto(Element element, LocalDateTime timestamp, String name) {
         Integer wmoCode = Integer.parseInt(element.getElementsByTagName("wmocode").item(0).getTextContent());
         Double airTemperature = Double.parseDouble(element.getElementsByTagName("airtemperature").item(0).getTextContent());
         Double windSpeed = Double.parseDouble(element.getElementsByTagName("windspeed").item(0).getTextContent());
         String phenomenon = element.getElementsByTagName("phenomenon").item(0).getTextContent();
 
-        return Station.builder()
+        return StationDto.builder()
                 .name(name)
                 .wmoCode(wmoCode)
                 .airTemperature(airTemperature)
