@@ -23,10 +23,10 @@ public class StationService {
     ));
 
     private static final Set<String> ATEF_VEHICLES = new HashSet<>(Set.of("Scooter", "Bike"));
-    private static final double LOW_TEMP_THRESHOLD = -10;
     private static final double LOW_TEMP_FEE = 1.0;
-    private static final double MID_TEMP_THRESHOLD = 0;
     private static final double MID_TEMP_FEE = 0.5;
+    private static final double LOW_TEMP_THRESHOLD = -10;
+    private static final double MID_TEMP_THRESHOLD = 0;
 
     private static final Set<String> WSEF_VEHICLES = new HashSet<>(Set.of("Bike"));
     private static final double MID_WIND_SPEED_FEE = 0.5;
@@ -34,6 +34,18 @@ public class StationService {
     private static final double HIGH_WIND_SPEED_THRESHOLD = 20;
 
     private static final Set<String> WPEF_VEHICLES = new HashSet<>(Set.of("Scooter", "Bike"));
+    private static final double RAIN_FEE = 1.0;
+    private static final double SNOW_FEE = 0.5;
+    private static final Set<String> RAIN_PHENOMENONS = new HashSet<>(Set.of(
+            "Light shower", "Moderate shower", "Heavy shower", "Light rain", "Moderate rain", "Heavy rain"
+    ));
+    private static final Set<String> SNOW_PHENOMENONS = new HashSet<>(Set.of(
+        "Light snow shower", "Moderate snow shower", "Heavy snow shower", "Light sleet", "Moderate sleet",
+        "Light snowfall", "Moderate snowfall", "Heavy snowfall", "Blowing snow", "Drifting snow"
+    ));
+    private static final Set<String> FORBIDDEN_PHENOMENONS = new HashSet<>(Set.of(
+            "Glaze", "Hail", "Thunder", "Thunderstorm"
+    ));
 
     public List<StationDto> getStations() {
         List<Station> stations = stationRepository.findAll();
@@ -51,17 +63,18 @@ public class StationService {
 
         double fee = calculateRBF(city, vehicle);
 
-        Station station = stationRepository.findTopByNameContainingIgnoreCaseOrderByIdDesc(city);
-        if (ATEF_VEHICLES.contains(vehicle)) {
-            fee += calculateATEF(station.getAirTemperature());
+        if (!ATEF_VEHICLES.contains(vehicle) && !WSEF_VEHICLES.contains(vehicle) && !WPEF_VEHICLES.contains(vehicle)) {
+            Station station = stationRepository.findTopByNameContainingIgnoreCaseOrderByIdDesc(city);
+            if (ATEF_VEHICLES.contains(vehicle)) {
+                fee += calculateATEF(station.getAirTemperature());
+            }
+            if (WSEF_VEHICLES.contains(vehicle)) {
+                fee += calculateWSEF(station.getWindSpeed());
+            }
+            if (WPEF_VEHICLES.contains(vehicle)) {
+                fee += calculateWPEF(station.getPhenomenon());
+            }
         }
-        if (WSEF_VEHICLES.contains(vehicle)) {
-            fee += calculateWSEF(station.getWindSpeed());
-        }
-        if (WPEF_VEHICLES.contains(vehicle)) {
-            fee += calculateWPEF();
-        }
-
         return fee;
     }
 
@@ -84,12 +97,25 @@ public class StationService {
     }
 
     private double calculateWSEF(double windSpeed) {
-        if (windSpeed > MID_WIND_SPEED_THRESHOLD && windSpeed <= HIGH_WIND_SPEED_THRESHOLD) return MID_WIND_SPEED_FEE;
-        if (windSpeed > HIGH_WIND_SPEED_THRESHOLD) return 0;
+        if (windSpeed > MID_WIND_SPEED_THRESHOLD && windSpeed <= HIGH_WIND_SPEED_THRESHOLD) {
+            return MID_WIND_SPEED_FEE;
+        }
+        else if (windSpeed > HIGH_WIND_SPEED_THRESHOLD) {
+            return 0;
+        }
         return 0;
     }
 
-    private double calculateWPEF() {
+    private double calculateWPEF(String phenomenon) {
+        if (RAIN_PHENOMENONS.contains(phenomenon)) {
+            return RAIN_FEE;
+        }
+        else if (SNOW_PHENOMENONS.contains(phenomenon)) {
+            return SNOW_FEE;
+        }
+        else if (FORBIDDEN_PHENOMENONS.contains(phenomenon)) {
+            return 0;
+        }
         return 0;
     }
 }
