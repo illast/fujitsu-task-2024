@@ -1,6 +1,7 @@
 package com.example.fujitsu.scheduler;
 
 import com.example.fujitsu.dto.StationDto;
+import com.example.fujitsu.exception.ApplicationException;
 import com.example.fujitsu.service.StationService;
 import lombok.RequiredArgsConstructor;
 import okhttp3.OkHttpClient;
@@ -32,17 +33,13 @@ public class StationScheduler {
     private static final Set<String> VALID_STATION_NAMES = new HashSet<>(Set.of("Tallinn-Harku", "Tartu-Tõravere", "Pärnu"));
     private static final String URL = "https://www.ilmateenistus.ee/ilma_andmed/xml/observations.php";
 
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "*/30 * * * * *")
     public void getObservations() {
         try {
             Document document = getObservationsDocument();
-            if (document != null) {
-                processObservations(document);
-            } else {
-                System.out.println("Failed to retrieve observations document.");
-            }
+            processObservations(document);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new ApplicationException(e.getMessage());
         }
     }
 
@@ -62,13 +59,11 @@ public class StationScheduler {
                 InputSource is = new InputSource(new StringReader(xmlResponse));
                 return builder.parse(is);
             } else {
-                System.out.println("Response body is null");
+                throw new ApplicationException("Response body is null");
             }
         } else {
-            System.out.println("Request failed with response code: " + response.code());
+            throw new ApplicationException("Request failed with response code: " + response.code());
         }
-
-        return null;
     }
 
     private void processObservations(Document document) {

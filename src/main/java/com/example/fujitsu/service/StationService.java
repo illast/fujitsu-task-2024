@@ -1,6 +1,7 @@
 package com.example.fujitsu.service;
 
 import com.example.fujitsu.dto.StationDto;
+import com.example.fujitsu.exception.ApplicationException;
 import com.example.fujitsu.mapper.StationMapper;
 import com.example.fujitsu.model.Station;
 import com.example.fujitsu.repository.StationRepository;
@@ -22,18 +23,18 @@ public class StationService {
         "pärnu car", 3.0, "pärnu scooter", 2.5, "pärnu bike", 2.0
     ));
 
-    private static final Set<String> ATEF_VEHICLES = new HashSet<>(Set.of("Scooter", "Bike"));
+    private static final Set<String> ATEF_VEHICLES = new HashSet<>(Set.of("scooter", "bike"));
     private static final double LOW_TEMP_FEE = 1.0;
     private static final double MID_TEMP_FEE = 0.5;
     private static final double LOW_TEMP_THRESHOLD = -10;
     private static final double MID_TEMP_THRESHOLD = 0;
 
-    private static final Set<String> WSEF_VEHICLES = new HashSet<>(Set.of("Bike"));
+    private static final Set<String> WSEF_VEHICLES = new HashSet<>(Set.of("bike"));
     private static final double MID_WIND_SPEED_FEE = 0.5;
     private static final double MID_WIND_SPEED_THRESHOLD = 10;
     private static final double HIGH_WIND_SPEED_THRESHOLD = 20;
 
-    private static final Set<String> WPEF_VEHICLES = new HashSet<>(Set.of("Scooter", "Bike"));
+    private static final Set<String> WPEF_VEHICLES = new HashSet<>(Set.of("scooter", "bike"));
     private static final double RAIN_FEE = 1.0;
     private static final double SNOW_FEE = 0.5;
     private static final Set<String> RAIN_PHENOMENONS = new HashSet<>(Set.of(
@@ -63,16 +64,20 @@ public class StationService {
 
         double fee = calculateRBF(city, vehicle);
 
-        if (!ATEF_VEHICLES.contains(vehicle) && !WSEF_VEHICLES.contains(vehicle) && !WPEF_VEHICLES.contains(vehicle)) {
-            Station station = stationRepository.findTopByNameContainingIgnoreCaseOrderByIdDesc(city);
-            if (ATEF_VEHICLES.contains(vehicle)) {
-                fee += calculateATEF(station.getAirTemperature());
-            }
-            if (WSEF_VEHICLES.contains(vehicle)) {
-                fee += calculateWSEF(station.getWindSpeed());
-            }
-            if (WPEF_VEHICLES.contains(vehicle)) {
-                fee += calculateWPEF(station.getPhenomenon());
+        if (ATEF_VEHICLES.contains(vehicle) || WSEF_VEHICLES.contains(vehicle) || WPEF_VEHICLES.contains(vehicle)) {
+            try {
+                Station station = stationRepository.findTopByNameContainingIgnoreCaseOrderByIdDesc(city);
+                if (ATEF_VEHICLES.contains(vehicle)) {
+                    fee += calculateATEF(station.getAirTemperature());
+                }
+                if (WSEF_VEHICLES.contains(vehicle)) {
+                    fee += calculateWSEF(station.getWindSpeed());
+                }
+                if (WPEF_VEHICLES.contains(vehicle)) {
+                    fee += calculateWPEF(station.getPhenomenon());
+                }
+            } catch (Exception e) {
+                throw new ApplicationException("No weather data available for this city");
             }
         }
         return fee;
@@ -101,7 +106,7 @@ public class StationService {
             return MID_WIND_SPEED_FEE;
         }
         else if (windSpeed > HIGH_WIND_SPEED_THRESHOLD) {
-            return 0;
+            throw new ApplicationException("Usage of selected vehicle type is forbidden");
         }
         return 0;
     }
@@ -114,7 +119,7 @@ public class StationService {
             return SNOW_FEE;
         }
         else if (FORBIDDEN_PHENOMENONS.contains(phenomenon)) {
-            return 0;
+            throw new ApplicationException("Usage of selected vehicle type is forbidden");
         }
         return 0;
     }
