@@ -5,19 +5,27 @@ import com.example.fujitsu.service.StationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/stations")
+@RequestMapping("/api")
 public class StationController {
 
     private final StationService stationService;
 
-    @GetMapping
+    @GetMapping("/stations")
     public List<StationDto> getStations() {
         return stationService.getStations();
+    }
+
+    @GetMapping("/fee")
+    public double calculateFee(
+            @RequestParam(defaultValue = "Tallinn") String city,
+            @RequestParam(defaultValue = "Car") String vehicle) {
+        return stationService.calculateFee(city, vehicle);
     }
 }

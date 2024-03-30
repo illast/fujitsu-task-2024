@@ -25,4 +25,24 @@ public class StationService {
         Station station = stationMapper.toEntity(stationDto);
         stationRepository.save(station);
     }
+
+    public double calculateFee(String city, String vehicle) {
+        return 0;
+    }
+
+    private float calculateRBF() {
+        return 0;
+    }
+
+    private float calculateATEF() {
+        return 0;
+    }
+
+    private float calculateWSEF() {
+        return 0;
+    }
+
+    private float calculateWPEF() {
+        return 0;
+    }
 }
