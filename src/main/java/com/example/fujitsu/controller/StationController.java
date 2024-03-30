@@ -24,8 +24,8 @@ public class StationController {
 
     @GetMapping("/fee")
     public double calculateFee(
-            @RequestParam(defaultValue = "Tallinn") String city,
-            @RequestParam(defaultValue = "Car") String vehicle) {
+            @RequestParam(defaultValue = "tallinn") String city,
+            @RequestParam(defaultValue = "car") String vehicle) {
         return stationService.calculateFee(city, vehicle);
     }
 }
