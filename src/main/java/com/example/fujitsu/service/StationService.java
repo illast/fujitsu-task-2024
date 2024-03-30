@@ -29,6 +29,10 @@ public class StationService {
     private static final double MID_TEMP_FEE = 0.5;
 
     private static final Set<String> WSEF_VEHICLES = new HashSet<>(Set.of("Bike"));
+    private static final double MID_WIND_SPEED_FEE = 0.5;
+    private static final double MID_WIND_SPEED_THRESHOLD = 10;
+    private static final double HIGH_WIND_SPEED_THRESHOLD = 20;
+
     private static final Set<String> WPEF_VEHICLES = new HashSet<>(Set.of("Scooter", "Bike"));
 
     public List<StationDto> getStations() {
@@ -52,7 +56,7 @@ public class StationService {
             fee += calculateATEF(station.getAirTemperature());
         }
         if (WSEF_VEHICLES.contains(vehicle)) {
-            fee += calculateWSEF();
+            fee += calculateWSEF(station.getWindSpeed());
         }
         if (WPEF_VEHICLES.contains(vehicle)) {
             fee += calculateWPEF();
@@ -79,7 +83,9 @@ public class StationService {
         return 0;
     }
 
-    private double calculateWSEF() {
+    private double calculateWSEF(double windSpeed) {
+        if (windSpeed > MID_WIND_SPEED_THRESHOLD && windSpeed <= HIGH_WIND_SPEED_THRESHOLD) return MID_WIND_SPEED_FEE;
+        if (windSpeed > HIGH_WIND_SPEED_THRESHOLD) return 0;
         return 0;
     }
 
