@@ -1,4 +1,4 @@
--- DROP TABLE IF EXISTS station;
+DROP TABLE IF EXISTS station;
 
 
 CREATE TABLE IF NOT EXISTS station (

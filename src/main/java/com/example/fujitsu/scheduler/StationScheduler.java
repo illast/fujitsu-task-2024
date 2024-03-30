@@ -15,7 +15,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.IOException;
 import java.io.StringReader;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -43,7 +42,7 @@ public class StationScheduler {
                 System.out.println("Failed to retrieve observations document.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -54,23 +53,21 @@ public class StationScheduler {
                 .get()
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                if (response.body() != null) {
-                    String xmlResponse = response.body().string();
-                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder builder = factory.newDocumentBuilder();
-                    InputSource is = new InputSource(new StringReader(xmlResponse));
-                    return builder.parse(is);
-                } else {
-                    System.out.println("Response body is null");
-                }
+        Response response = client.newCall(request).execute();
+        if (response.isSuccessful()) {
+            if (response.body() != null) {
+                String xmlResponse = response.body().string();
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                InputSource is = new InputSource(new StringReader(xmlResponse));
+                return builder.parse(is);
             } else {
-                System.out.println("Request failed with response code: " + response.code());
+                System.out.println("Response body is null");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            System.out.println("Request failed with response code: " + response.code());
         }
+
         return null;
     }
 
@@ -89,7 +86,7 @@ public class StationScheduler {
         String name = element.getElementsByTagName("name").item(0).getTextContent();
         if (VALID_STATION_NAMES.contains(name)) {
             Station station = createStation(element, timestamp, name);
-//            stationService.addStation(station);
+            stationService.addStation(station);
             System.out.println(station);
         }
     }
