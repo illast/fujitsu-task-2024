@@ -33,7 +33,7 @@ public class StationScheduler {
     private static final Set<String> VALID_STATION_NAMES = new HashSet<>(Set.of("Tallinn-Harku", "Tartu-Tõravere", "Pärnu"));
     private static final String URL = "https://www.ilmateenistus.ee/ilma_andmed/xml/observations.php";
 
-    @Scheduled(cron = "*/30 * * * * *")
+    @Scheduled(cron = "0 15 * * * *")
     public void getObservations() {
         try {
             Document document = getObservationsDocument();
