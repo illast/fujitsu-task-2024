@@ -17,34 +17,34 @@ public class StationService {
     private final StationRepository stationRepository;
     private final StationMapper stationMapper;
 
-    private static final Map<String, Double> RBF_VEHICLE_CITY_PRICE_MAP = new HashMap<>(Map.of(
+    protected static final Map<String, Double> RBF_VEHICLE_CITY_PRICE_MAP = new HashMap<>(Map.of(
         "tallinn car", 4.0, "tallinn scooter", 3.5, "tallinn bike", 3.0,
         "tartu car", 3.5, "tartu scooter", 3.0, "tartu bike", 2.5,
         "pärnu car", 3.0, "pärnu scooter", 2.5, "pärnu bike", 2.0
     ));
 
-    private static final Set<String> ATEF_VEHICLES = new HashSet<>(Set.of("scooter", "bike"));
-    private static final double LOW_TEMP_FEE = 1.0;
-    private static final double MID_TEMP_FEE = 0.5;
-    private static final double LOW_TEMP_THRESHOLD = -10;
-    private static final double MID_TEMP_THRESHOLD = 0;
+    protected static final Set<String> ATEF_VEHICLES = new HashSet<>(Set.of("scooter", "bike"));
+    protected static final double LOW_TEMP_FEE = 1.0;
+    protected static final double MID_TEMP_FEE = 0.5;
+    protected static final double LOW_TEMP_THRESHOLD = -10;
+    protected static final double MID_TEMP_THRESHOLD = 0;
 
-    private static final Set<String> WSEF_VEHICLES = new HashSet<>(Set.of("bike"));
-    private static final double MID_WIND_SPEED_FEE = 0.5;
-    private static final double MID_WIND_SPEED_THRESHOLD = 10;
-    private static final double HIGH_WIND_SPEED_THRESHOLD = 20;
+    protected static final Set<String> WSEF_VEHICLES = new HashSet<>(Set.of("bike"));
+    protected static final double MID_WIND_SPEED_FEE = 0.5;
+    protected static final double MID_WIND_SPEED_THRESHOLD = 10;
+    protected static final double HIGH_WIND_SPEED_THRESHOLD = 20;
 
-    private static final Set<String> WPEF_VEHICLES = new HashSet<>(Set.of("scooter", "bike"));
-    private static final double RAIN_FEE = 1.0;
-    private static final double SNOW_FEE = 0.5;
-    private static final Set<String> RAIN_PHENOMENONS = new HashSet<>(Set.of(
+    protected static final Set<String> WPEF_VEHICLES = new HashSet<>(Set.of("scooter", "bike"));
+    protected static final double RAIN_FEE = 1.0;
+    protected static final double SNOW_FEE = 0.5;
+    protected static final Set<String> RAIN_PHENOMENONS = new HashSet<>(Set.of(
             "Light shower", "Moderate shower", "Heavy shower", "Light rain", "Moderate rain", "Heavy rain"
     ));
-    private static final Set<String> SNOW_PHENOMENONS = new HashSet<>(Set.of(
+    protected static final Set<String> SNOW_PHENOMENONS = new HashSet<>(Set.of(
         "Light snow shower", "Moderate snow shower", "Heavy snow shower", "Light sleet", "Moderate sleet",
         "Light snowfall", "Moderate snowfall", "Heavy snowfall", "Blowing snow", "Drifting snow"
     ));
-    private static final Set<String> FORBIDDEN_PHENOMENONS = new HashSet<>(Set.of(
+    protected static final Set<String> FORBIDDEN_PHENOMENONS = new HashSet<>(Set.of(
             "Glaze", "Hail", "Thunder", "Thunderstorm"
     ));
 
@@ -83,7 +83,7 @@ public class StationService {
         return fee;
     }
 
-    private double calculateRBF(String city, String vehicle) {
+    protected double calculateRBF(String city, String vehicle) {
         String cityVehicle = city + " " + vehicle;
         if (RBF_VEHICLE_CITY_PRICE_MAP.containsKey(cityVehicle)) {
             return RBF_VEHICLE_CITY_PRICE_MAP.get(cityVehicle);
@@ -91,7 +91,7 @@ public class StationService {
         return 0;
     }
 
-    private double calculateATEF(double airTemperature) {
+    protected double calculateATEF(double airTemperature) {
         if (airTemperature < LOW_TEMP_THRESHOLD) {
             return LOW_TEMP_FEE;
         }
@@ -101,7 +101,7 @@ public class StationService {
         return 0;
     }
 
-    private double calculateWSEF(double windSpeed) {
+    protected double calculateWSEF(double windSpeed) {
         if (windSpeed > MID_WIND_SPEED_THRESHOLD && windSpeed <= HIGH_WIND_SPEED_THRESHOLD) {
             return MID_WIND_SPEED_FEE;
         }
@@ -111,7 +111,7 @@ public class StationService {
         return 0;
     }
 
-    private double calculateWPEF(String phenomenon) {
+    protected double calculateWPEF(String phenomenon) {
         if (RAIN_PHENOMENONS.contains(phenomenon)) {
             return RAIN_FEE;
         }
